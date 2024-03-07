@@ -1413,7 +1413,10 @@ class FilesystemController(SubiquityController, FilesystemManipulator):
 
         if mode == "reformat_disk":
             match = layout.get("match", {"size": "largest"})
-            disk = self.model.disk_for_match(self.model.all_disks(), match)
+            disks = self.potential_boot_disks(with_reformatting=True)
+            disk = self.model.disk_for_match(disks, match)
+            if disk is None:
+                raise Exception(f"Failed to find matching disk for {match}")
             target = GuidedStorageTargetReformat(disk_id=disk.id, allowed=[])
         elif mode == "use_gap":
             bootable = [
